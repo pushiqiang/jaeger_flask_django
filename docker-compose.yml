@@ -1,0 +1,10 @@
+version: '2.2'
+
+services:
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.7
+    ports:
+      - "6831"
+      - "6832"
+      - "16686"
