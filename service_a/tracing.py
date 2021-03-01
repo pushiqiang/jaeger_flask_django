@@ -125,7 +125,7 @@ def trace(tracer):
             try:
                 response = view_func(*args, **kwargs)
             except Exception as e:
-                after_request_trace(response, e)
+                after_request_trace(error=e)
                 raise
             else:
                 after_request_trace(response)

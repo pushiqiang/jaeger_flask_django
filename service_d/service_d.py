@@ -1,19 +1,17 @@
 import requests
-from flask import Flask, jsonify
-from opentracing_instrumentation.client_hooks.requests import install_patches
+from flask import Flask
 
 from .tracing import init_tracer, trace
 
 
 app = Flask(__name__)
-tracer = init_tracer('formatter')
-install_patches()
+tracer = init_tracer('service_d')
 
 
 @app.route('/d/')
 @trace(tracer)
 def index():
-    raise Exception
+    raise Exception('service d raise a exception.')
 
 
 if __name__ == '__main__':

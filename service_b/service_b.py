@@ -6,7 +6,7 @@ from .tracing import init_tracer, trace
 
 
 app = Flask(__name__)
-tracer = init_tracer('formatter')
+tracer = init_tracer('service_b')
 install_patches()
 
 
