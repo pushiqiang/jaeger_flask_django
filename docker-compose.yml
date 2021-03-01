@@ -8,3 +8,31 @@ services:
       - "6831"
       - "6832"
       - "16686"
+
+  service_a:
+    build: ./
+    volumes:
+      - ./service_a:/opt/examples
+
+    command: sleep 10000000000
+
+  service_b:
+    build: ./
+    volumes:
+      - ./service_b:/opt/examples
+
+    command: sleep 10000000000
+
+  service_c:
+    build: ./
+    volumes:
+      - ./service_c:/opt/examples
+
+    command: sleep 10000000000
+
+  service_d:
+    build: ./
+    volumes:
+      - ./service_d:/opt/examples
+
+    command: sleep 10000000000
