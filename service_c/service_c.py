@@ -13,7 +13,7 @@ install_patches()
 @app.route('/c/')
 @trace(tracer)
 def index():
-    data = requests.get('service_d/d/')
+    data = requests.get('service_d:5000/d/')
     return jsonify(data)
 
 

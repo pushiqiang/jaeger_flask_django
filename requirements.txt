@@ -1,2 +1,4 @@
+Flask
+requests
 jaeger-client
 opentracing-instrumentation
