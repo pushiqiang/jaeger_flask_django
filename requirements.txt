@@ -2,3 +2,4 @@ Flask
 requests
 jaeger-client
 opentracing-instrumentation
+tornado==5.1.1

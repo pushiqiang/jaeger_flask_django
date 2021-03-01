@@ -1,7 +1,7 @@
 import requests
 from flask import Flask
 
-from .tracing import init_tracer, trace
+from tracing import init_tracer, trace
 
 
 app = Flask(__name__)

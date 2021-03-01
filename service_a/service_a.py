@@ -2,7 +2,7 @@ import requests
 from flask import Flask, jsonify
 from opentracing_instrumentation.client_hooks.requests import install_patches
 
-from .tracing import init_tracer, trace
+from tracing import init_tracer, trace
 
 
 app = Flask(__name__)
@@ -13,7 +13,7 @@ install_patches()
 @app.route('/a/')
 @trace(tracer)
 def index():
-    data = requests.get('service_b:5000/b/')
+    data = requests.get('service_b:5001/b/')
     return jsonify(data)
 
 

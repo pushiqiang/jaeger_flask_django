@@ -23,7 +23,7 @@ services:
     volumes:
       - ./service_b:/opt/examples
     ports:
-      - 5000:5000
+      - 5001:5000
 
     command: sleep 10000000000
 
@@ -32,7 +32,7 @@ services:
     volumes:
       - ./service_c:/opt/examples
     ports:
-      - 5000:5000
+      - 5002:5000
 
     command: sleep 10000000000
 
@@ -41,6 +41,6 @@ services:
     volumes:
       - ./service_d:/opt/examples
     ports:
-      - 5000:5000
+      - 5003:5000
 
     command: sleep 10000000000
