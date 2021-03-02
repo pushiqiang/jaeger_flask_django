@@ -1,8 +1,8 @@
 from django.urls import path
 
-from .views import TestView
+from .views import hello
 
 urlpatterns = [
-    path('', TestView.as_view(), name='django_test'),
+    path('b/', hello, name='test'),
 
 ]

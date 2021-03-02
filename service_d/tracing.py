@@ -60,6 +60,7 @@ def before_request_trace(tracer):
     span.set_tag(tags.SPAN_KIND, tags.SPAN_KIND_RPC_SERVER)
 
     g.scope = scope
+    return scope
 
 
 def after_request_trace(response=None, error=None):
@@ -99,6 +100,7 @@ def after_request_trace(response=None, error=None):
         scope.span.log_kv({
             'event': tags.ERROR,
             'error.object': error,
+            'request.headers': request.headers,
             'request.args': request.args,
             'request.data': request.data
         })

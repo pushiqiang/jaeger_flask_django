@@ -14,7 +14,8 @@ install_patches()
 @trace(tracer)
 def index():
     data = {'name': 'service_a'}
-    data = requests.get('http://service_b:5000/b/')
+    # data = requests.get('http://service_c:5000/c/')
+    data = requests.get('http://172.21.0.2:5000/b/')
     return jsonify(data)
 
 
