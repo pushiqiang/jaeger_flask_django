@@ -13,10 +13,11 @@ install_patches()
 @app.route('/a/')
 @trace(tracer)
 def index():
-    data = requests.get('service_b:5001/b/')
+    data = {'name': 'service_a'}
+    data = requests.get('http://service_b:5000/b/')
     return jsonify(data)
 
 
 if __name__ == '__main__':
     app.debug = True
-    app.run()
+    app.run(host='0.0.0.0', port=5000)

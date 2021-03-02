@@ -22,8 +22,8 @@ services:
     build: ./
     volumes:
       - ./service_b:/opt/examples
-    ports:
-      - 5001:5000
+    expose:
+      - "5000"
 
     command: sleep 10000000000
 
@@ -31,8 +31,8 @@ services:
     build: ./
     volumes:
       - ./service_c:/opt/examples
-    ports:
-      - 5002:5000
+    expose:
+      - "5000"
 
     command: sleep 10000000000
 
@@ -40,7 +40,7 @@ services:
     build: ./
     volumes:
       - ./service_d:/opt/examples
-    ports:
-      - 5003:5000
+    expose:
+      - "5000"
 
     command: sleep 10000000000
