@@ -99,7 +99,9 @@ def after_request_trace(response=None, error=None):
         scope.span.set_tag(tags.ERROR, True)
         scope.span.log_kv({
             'event': tags.ERROR,
+            'error.kind': type(error),
             'error.object': error,
+            'error.stack': error.__traceback__,
             'request.headers': request.headers,
             'request.args': request.args,
             'request.data': request.data

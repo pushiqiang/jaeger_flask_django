@@ -6,6 +6,10 @@ from opentracing.ext import tags
 from jaeger_client import Config
 
 
+TRACE_ID = 'trace_id'
+REQUEST_ID = 'request_id'
+
+
 def init_tracer(service_name):
     logging.getLogger('').handlers = []
     logging.basicConfig(format='%(message)s', level=logging.DEBUG)
@@ -48,6 +52,7 @@ def before_request_trace(tracer, request, view_func):
     '''
     # strip headers for trace info
     headers = format_request_headers(request.META)
+    print('xxxxxxxxxxx', headers, request.META)
 
     # start new span from trace info
     operation_name = view_func.__name__
@@ -60,9 +65,14 @@ def before_request_trace(tracer, request, view_func):
 
     span = scope.span
     span.set_tag(tags.COMPONENT, 'django')
+    span.set_tag(TRACE_ID, headers.get(TRACE_ID) or span.context.trace_id)
     span.set_tag(tags.SPAN_KIND, tags.SPAN_KIND_RPC_SERVER)
     span.set_tag(tags.HTTP_METHOD, request.method)
     span.set_tag(tags.HTTP_URL, request.get_full_path())
+
+    request_id = headers.get(REQUEST_ID)
+    if request_id:
+        span.set_tag(REQUEST_ID, request_id)
 
     request.scope = scope
 
@@ -81,7 +91,9 @@ def after_request_trace(request, response=None, error=None):
         scope.span.set_tag(tags.ERROR, True)
         scope.span.log_kv({
             'event': tags.ERROR,
+            'error.kind': type(error),
             'error.object': error,
+            'error.stack': error.__traceback__,
             'request.headers': format_request_headers(request.META),
             'request.args': request.GET,
             'request.data': request.POST

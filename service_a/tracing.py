@@ -7,6 +7,10 @@ from opentracing.ext import tags
 from jaeger_client import Config
 
 
+TRACE_ID = 'trace_id'
+REQUEST_ID = 'request_id'
+
+
 def init_tracer(service_name):
     logging.getLogger('').handlers = []
     logging.basicConfig(format='%(message)s', level=logging.DEBUG)
@@ -46,6 +50,8 @@ def before_request_trace(tracer):
     for k, v in request.headers:
         headers[k.lower()] = v
 
+    print('xxxxxxxx', headers)
+
     try:
         span_ctx = tracer.extract(opentracing.Format.HTTP_HEADERS, headers)
         scope = tracer.start_active_span(operation_name, child_of=span_ctx)
@@ -55,9 +61,14 @@ def before_request_trace(tracer):
 
     span = scope.span
     span.set_tag(tags.COMPONENT, 'Flask')
+    span.set_tag(TRACE_ID, headers.get(TRACE_ID) or span.context.trace_id)
     span.set_tag(tags.HTTP_METHOD, request.method)
     span.set_tag(tags.HTTP_URL, request.base_url)
     span.set_tag(tags.SPAN_KIND, tags.SPAN_KIND_RPC_SERVER)
+
+    request_id = headers.get(REQUEST_ID)
+    if request_id:
+        span.set_tag(REQUEST_ID, request_id)
 
     g.scope = scope
     return scope
@@ -99,7 +110,9 @@ def after_request_trace(response=None, error=None):
         scope.span.set_tag(tags.ERROR, True)
         scope.span.log_kv({
             'event': tags.ERROR,
+            'error.kind': type(error),
             'error.object': error,
+            'error.stack': error.__traceback__,
             'request.headers': request.headers,
             'request.args': request.args,
             'request.data': request.data
