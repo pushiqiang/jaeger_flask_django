@@ -7,6 +7,10 @@ from opentracing.ext import tags
 from jaeger_client import Config
 
 
+TRACE_ID = 'trace_id'
+REQUEST_ID = 'request_id'
+
+
 def init_tracer(service_name):
     logging.getLogger('').handlers = []
     logging.basicConfig(format='%(message)s', level=logging.DEBUG)
@@ -29,6 +33,10 @@ def init_tracer(service_name):
 
     # this call also sets opentracing.tracer
     return config.initialize_tracer()
+
+
+def format_hex_trace_id(trace_id: int):
+    return '{:x}'.format(trace_id)
 
 
 def before_request_trace(tracer):
@@ -55,9 +63,14 @@ def before_request_trace(tracer):
 
     span = scope.span
     span.set_tag(tags.COMPONENT, 'Flask')
+    span.set_tag(TRACE_ID, format_hex_trace_id(span.trace_id))
     span.set_tag(tags.HTTP_METHOD, request.method)
     span.set_tag(tags.HTTP_URL, request.base_url)
     span.set_tag(tags.SPAN_KIND, tags.SPAN_KIND_RPC_SERVER)
+
+    request_id = headers.get(REQUEST_ID)
+    if request_id:
+        span.set_tag(REQUEST_ID, request_id)
 
     g.scope = scope
     return scope
@@ -110,6 +123,13 @@ def after_request_trace(response=None, error=None):
     scope.close()
 
 
+def get_current_span():
+    scope = getattr(g, 'scope', None)
+    if not scope:
+        return
+    return scope.span
+
+
 def trace(tracer):
     """
     Function decorator that traces functions
@@ -130,7 +150,7 @@ def trace(tracer):
                 response = view_func(*args, **kwargs)
             except Exception as e:
                 after_request_trace(error=e)
-                raise
+                raise e
             else:
                 after_request_trace(response)
 

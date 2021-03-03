@@ -35,6 +35,10 @@ def init_tracer(service_name):
     return config.initialize_tracer()
 
 
+def format_hex_trace_id(trace_id: int):
+    return '{:x}'.format(trace_id)
+
+
 def before_request_trace(tracer):
     """
     trace flask request
@@ -59,7 +63,7 @@ def before_request_trace(tracer):
 
     span = scope.span
     span.set_tag(tags.COMPONENT, 'Flask')
-    span.set_tag(TRACE_ID, headers.get(TRACE_ID) or span.context.trace_id)
+    span.set_tag(TRACE_ID, format_hex_trace_id(span.trace_id))
     span.set_tag(tags.HTTP_METHOD, request.method)
     span.set_tag(tags.HTTP_URL, request.base_url)
     span.set_tag(tags.SPAN_KIND, tags.SPAN_KIND_RPC_SERVER)

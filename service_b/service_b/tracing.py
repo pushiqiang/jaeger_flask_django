@@ -44,6 +44,10 @@ def format_request_headers(request_meta):
     return headers
 
 
+def format_hex_trace_id(trace_id: int):
+    return '{:x}'.format(trace_id)
+
+
 def before_request_trace(tracer, request, view_func):
     '''
     Helper function to avoid rewriting for middleware and decorator.
@@ -64,7 +68,7 @@ def before_request_trace(tracer, request, view_func):
 
     span = scope.span
     span.set_tag(tags.COMPONENT, 'django')
-    span.set_tag(TRACE_ID, headers.get(TRACE_ID) or span.context.trace_id)
+    span.set_tag(TRACE_ID, format_hex_trace_id(span.trace_id))
     span.set_tag(tags.SPAN_KIND, tags.SPAN_KIND_RPC_SERVER)
     span.set_tag(tags.HTTP_METHOD, request.method)
     span.set_tag(tags.HTTP_URL, request.get_full_path())
@@ -97,7 +101,6 @@ def after_request_trace(request, response=None, error=None):
             'request.args': request.GET,
             'request.data': request.POST
         })
-
 
     scope.close()
 

@@ -10,7 +10,6 @@ except ImportError:
 
 
 class OpenTracingMiddleware(MiddlewareMixin):
-
     def __init__(self, get_response=None):
         """
          __init__() is only called once, no arguments, when the Web server
