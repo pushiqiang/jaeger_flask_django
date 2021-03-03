@@ -123,13 +123,6 @@ def after_request_trace(response=None, error=None):
     scope.close()
 
 
-def get_current_span():
-    scope = getattr(g, 'scope', None)
-    if not scope:
-        return
-    return scope.span
-
-
 def trace(tracer):
     """
     Function decorator that traces functions
