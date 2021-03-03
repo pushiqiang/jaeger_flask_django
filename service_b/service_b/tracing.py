@@ -52,7 +52,6 @@ def before_request_trace(tracer, request, view_func):
     '''
     # strip headers for trace info
     headers = format_request_headers(request.META)
-    print('xxxxxxxxxxx', headers, request.META)
 
     # start new span from trace info
     operation_name = view_func.__name__
@@ -99,6 +98,7 @@ def after_request_trace(request, response=None, error=None):
             'request.data': request.POST
         })
 
+
     scope.close()
 
 
@@ -113,7 +113,7 @@ def trace(tracer):
                 response = view_func(request, *args, **kwargs)
             except Exception as e:
                 after_request_trace(request, error=e)
-                raise
+                raise e
             else:
                 after_request_trace(request, response)
 

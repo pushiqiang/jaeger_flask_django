@@ -50,8 +50,6 @@ def before_request_trace(tracer):
     for k, v in request.headers:
         headers[k.lower()] = v
 
-    print('xxxxxxxx', headers)
-
     try:
         span_ctx = tracer.extract(opentracing.Format.HTTP_HEADERS, headers)
         scope = tracer.start_active_span(operation_name, child_of=span_ctx)
@@ -148,7 +146,7 @@ def trace(tracer):
                 response = view_func(*args, **kwargs)
             except Exception as e:
                 after_request_trace(error=e)
-                raise
+                raise e
             else:
                 after_request_trace(response)
 
