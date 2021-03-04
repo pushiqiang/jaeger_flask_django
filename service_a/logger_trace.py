@@ -1,5 +1,5 @@
 # coding: utf-8
-
+import datetime
 import logging
 import opentracing
 from opentracing.ext import tags
@@ -32,7 +32,7 @@ class TraceErrorHandler(StreamHandler):
 
         if record.levelno == logging.ERROR:
             try:
-                operation_name = 'logger-{}-{}'.format(record.name, record.funcName)
+                operation_name = 'logger[{}]-{}-{}'.format(record.name, record.funcName, record.lineno)
                 with opentracing.tracer.start_span(operation_name,
                                                    child_of=opentracing.tracer.active_span) as logger_span:
 
@@ -41,7 +41,20 @@ class TraceErrorHandler(StreamHandler):
 
                     logger_span.log_kv({
                         'event': 'logger.error',
-                        'error.message': msg
+                        'error.message': msg,
+                        'error.exc_info': record.exc_info,
+                        'error.asctime': getattr(record, 'asctime', datetime.datetime.now()),
+                        'error.created': record.created,
+                        'error.filename': record.filename,
+                        'error.funcName': record.funcName,
+                        'error.levelname': record.levelname,
+                        'error.lineno': record.lineno,
+                        'error.module': record.module,
+                        'error.msecs': record.msecs,
+                        'error.name': record.name,
+                        'error.pathname': record.pathname,
+                        'error.process': record.process,
+                        'error.thread': record.thread
                     })
             except Exception:
                 pass
