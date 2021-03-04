@@ -1,3 +1,4 @@
+import logging
 import requests
 from flask import Flask, jsonify
 from opentracing_instrumentation.client_hooks.requests import install_patches
@@ -10,10 +11,17 @@ tracer = init_tracer('service_a')
 install_patches()
 
 
+logger = logging.getLogger(__name__)
+
+
 @app.route('/a/')
 @trace(tracer)
 def index():
     data = {'name': 'service_a'}
+    try:
+        a = 2 / 0
+    except Exception as e:
+        logger.error('logger error xxxxxxxxxx', exc_info=True)
     # data = requests.get('http://service_c:5000/c/')
     data = requests.get('http://172.21.0.2:5000/b/')
     return jsonify(data)
