@@ -32,7 +32,8 @@ class TraceErrorHandler(StreamHandler):
 
         if record.levelno == logging.ERROR:
             try:
-                with opentracing.tracer.start_span(record.funcName,
+                operation_name = 'logger-{}-{}'.format(record.name, record.funcName)
+                with opentracing.tracer.start_span(operation_name,
                                                    child_of=opentracing.tracer.active_span) as logger_span:
 
                     logger_span.set_tag(tags.COMPONENT, 'Flask')
@@ -40,8 +41,7 @@ class TraceErrorHandler(StreamHandler):
 
                     logger_span.log_kv({
                         'event': 'logger.error',
-                        'error.message': msg,
-                        'error.stack': record.stack_info,
+                        'error.message': msg
                     })
             except Exception:
                 pass
