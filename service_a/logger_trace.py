@@ -8,6 +8,7 @@ from logging import StreamHandler
 
 
 SPAN_KIND_LOGGER = 'logger'
+LOGGER = 'logger'
 LOGGER_ERROR = 'logger.error'
 ERROR_MESSAGE = 'error.message'
 
@@ -32,12 +33,12 @@ class TraceErrorHandler(StreamHandler):
 
         if record.levelno == logging.ERROR:
             try:
-                operation_name = 'logger[{}]-{}-{}'.format(record.name, record.funcName, record.lineno)
+                operation_name = 'logger[{}]:{}:{}'.format(record.name, record.funcName, record.lineno)
                 with opentracing.tracer.start_span(operation_name,
                                                    child_of=opentracing.tracer.active_span) as logger_span:
 
-                    logger_span.set_tag(tags.COMPONENT, 'Flask')
-                    logger_span.set_tag(tags.SPAN_KIND, SPAN_KIND_LOGGER)
+                    logger_span.set_tag(tags.SPAN_KIND, LOGGER)
+                    logger_span.set_tag(LOGGER, record.name)
 
                     logger_span.log_kv({
                         'event': 'logger.error',
