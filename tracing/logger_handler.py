@@ -22,7 +22,7 @@ class ErrorTraceHandler(Handler):
     def emit(self, record):
         try:
             msg = self.format(record)
-            operation_name = 'logger[{}]:{}:{}'.format(record.name, record.funcName, record.lineno)
+            operation_name = 'logger[{}]'.format(record.name)
             with opentracing.tracer.start_span(operation_name,
                                                child_of=opentracing.tracer.active_span) as logger_span:
 

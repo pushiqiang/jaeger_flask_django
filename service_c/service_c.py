@@ -36,9 +36,15 @@ def end_trace(response):
 
 
 @app.teardown_request
-def end_trace_with_error(error):
+def end_trace_with_error(e):
     if error is not None:
-        after_request_trace(error=error)
+        after_request_trace(error=e)
+
+
+@app.errorhandler(Exception)
+def exception_trace(e):
+    after_request_trace(error=e)
+    raise e
 
 
 @app.route('/error/')

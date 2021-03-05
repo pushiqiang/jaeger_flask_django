@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 def error(request):
     try:
-        response = requests.get('http://172.21.0.5:5000/error/')
+        response = requests.get('http://172.21.0.6:5000/error/')
     except Exception as e:
         logger.error('call service_b fail')
         raise e
@@ -23,6 +23,6 @@ def error(request):
 
 
 def good(request):
-    response = requests.get('http://172.21.0.5:5000/good/')
+    response = requests.get('http://172.21.0.6:5000/good/')
     logger.error('logger.error test')
     return JsonResponse(response.json())

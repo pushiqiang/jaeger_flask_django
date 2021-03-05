@@ -25,7 +25,7 @@ trace_config = {
 
 
 app = Flask(__name__)
-tracer = init_tracer('service_a', trace_config)
+tracer = init_tracer('service', trace_config)
 install_patches()
 
 
@@ -39,7 +39,7 @@ def error():
 
     logger.critical('critical error', exc_info=True)
 
-    response = requests.get('http://172.21.0.4:5000/error/')
+    response = requests.get('http://172.21.0.3:5000/error/')
     return jsonify(response.json())
 
 
@@ -47,7 +47,7 @@ def error():
 @trace(tracer)
 def good():
     logger.info('service good')
-    response = requests.get('http://172.21.0.4:5000/good/')
+    response = requests.get('http://172.21.0.3:5000/good/')
     return jsonify(response.json())
 
 
