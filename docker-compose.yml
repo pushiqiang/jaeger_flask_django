@@ -13,13 +13,17 @@ services:
     build: ./
     volumes:
       - ./service:/opt/examples
+      - ./tracing:/opt/tracing
     ports:
       - 5000:5000
+
+    command: sleep 10000000000
 
   service_a:
     build: ./
     volumes:
       - ./service_a:/opt/examples
+      - ./tracing:/opt/tracing
     expose:
       - "5000"
 
@@ -29,6 +33,7 @@ services:
     build: ./
     volumes:
       - ./service_b:/opt/examples
+      - ./tracing:/opt/tracing
     expose:
       - "5000"
 
@@ -38,6 +43,7 @@ services:
     build: ./
     volumes:
       - ./service_c:/opt/examples
+      - ./tracing:/opt/tracing
     expose:
       - "5000"
 
@@ -47,6 +53,7 @@ services:
     build: ./
     volumes:
       - ./service_d:/opt/examples
+      - ./tracing:/opt/tracing
     expose:
       - "5000"
 

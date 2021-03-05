@@ -15,14 +15,14 @@ logger = logging.getLogger(__name__)
 
 def error(request):
     try:
-        data = requests.get('http://service_b:5000/error/')
+        response = requests.get('http://172.21.0.5:5000/error/')
     except Exception as e:
         logger.error('call service_b fail')
         raise e
-    return JsonResponse(data)
+    return JsonResponse(response.json())
 
 
 def good(request):
-    data = requests.get('http://service_b:5000/good/')
+    response = requests.get('http://172.21.0.5:5000/good/')
     logger.error('logger.error test')
-    return JsonResponse(data)
+    return JsonResponse(response.json())

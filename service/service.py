@@ -39,16 +39,16 @@ def error():
 
     logger.critical('critical error', exc_info=True)
 
-    data = requests.get('http://service_a:5000/error/')
-    return jsonify(data)
+    response = requests.get('http://172.21.0.4:5000/error/')
+    return jsonify(response.json())
 
 
 @app.route('/good/')
 @trace(tracer)
 def good():
     logger.info('service good')
-    data = requests.get('http://service_a:5000/good/')
-    return jsonify(data)
+    response = requests.get('http://172.21.0.4:5000/good/')
+    return jsonify(response.json())
 
 
 if __name__ == '__main__':

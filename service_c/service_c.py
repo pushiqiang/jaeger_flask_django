@@ -43,14 +43,14 @@ def end_trace_with_error(error):
 
 @app.route('/error/')
 def error():
-    data = requests.get('http://service_d:5000/error/')
-    return jsonify(data)
+    response = requests.get('http://service_d:5000/error/')
+    return jsonify(response.json())
 
 
 @app.route('/good/')
 def success():
-    data = requests.get('http://service_d:5000/good/')
-    return jsonify(data)
+    response = requests.get('http://service_d:5000/good/')
+    return jsonify(response.json())
 
 
 if __name__ == '__main__':

@@ -38,7 +38,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'tracing.django.middleware.OpenTracingMiddleware'
+    'tracing.django.middleware.OpenTracingMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

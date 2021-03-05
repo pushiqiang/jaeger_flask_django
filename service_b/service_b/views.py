@@ -30,15 +30,15 @@ install_patches()
 @trace(tracer)
 def error(request):
     try:
-        data = requests.get('http://service_c:5000/error/')
+        response = requests.get('http://service_c:5000/error/')
     except Exception as e:
         logger.error('call service_c fail')
         raise e
-    return JsonResponse(data)
+    return JsonResponse(response.json())
 
 
 @trace(tracer)
 def good(request):
-    data = requests.get('http://service_c:5000/error/')
+    response = requests.get('http://service_c:5000/good/')
     logger.error('call service_c success')
-    return JsonResponse(data)
+    return JsonResponse(response.json())
