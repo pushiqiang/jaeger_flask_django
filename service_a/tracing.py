@@ -6,14 +6,19 @@ from opentracing.ext import tags
 
 from jaeger_client import Config
 
+from logger_trace import TraceErrorHandler
+
 
 TRACE_ID = 'trace_id'
 REQUEST_ID = 'request_id'
 
 
 def init_tracer(service_name):
-    logging.getLogger('').handlers = []
-    logging.basicConfig(format='%(message)s', level=logging.DEBUG)
+    # add the handler to the root logger
+    # 为root logger添加handler
+    # logging.getLogger('').handlers = [TraceErrorHandler()]
+    logging.getLogger('').addHandler(TraceErrorHandler())
+    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.ERROR)
 
     config = Config(
         config={
