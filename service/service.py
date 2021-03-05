@@ -1,5 +1,7 @@
 import logging
+import requests
 from flask import Flask, jsonify
+from opentracing_instrumentation.client_hooks.requests import install_patches
 
 from tracing import init_tracer
 from tracing.flask import trace
@@ -8,8 +10,6 @@ from tracing.logger_handler import ErrorTraceHandler
 
 logging.getLogger('').handlers = [logging.StreamHandler(), ErrorTraceHandler()]
 logger = logging.getLogger(__name__)
-
-app = Flask(__name__)
 
 trace_config = {
     'sampler': {
@@ -24,20 +24,30 @@ trace_config = {
 }
 
 
-tracer = init_tracer('service_d', trace_config)
+app = Flask(__name__)
+tracer = init_tracer('service_a', trace_config)
+install_patches()
 
 
 @app.route('/error/')
 @trace(tracer)
 def error():
-    raise Exception('service d raise a exception.')
+    try:
+        a = 2 / 0
+    except Exception as e:
+        logger.error('exception error', exc_info=True)
+
+    logger.critical('critical error', exc_info=True)
+
+    data = requests.get('http://service_a:5000/error/')
+    return jsonify(data)
 
 
 @app.route('/good/')
 @trace(tracer)
 def good():
-    data = {'service_d': 'good'}
-    logger.error('log service_d some error')
+    logger.info('service good')
+    data = requests.get('http://service_a:5000/good/')
     return jsonify(data)
 
 

@@ -1,37 +1,7 @@
 import six
-import logging
 import opentracing
-from opentracing.ext import tags
 
-from jaeger_client import Config
-
-
-TRACE_ID = 'trace_id'
-REQUEST_ID = 'request_id'
-
-
-def init_tracer(service_name):
-    logging.getLogger('').handlers = []
-    logging.basicConfig(format='%(message)s', level=logging.DEBUG)
-
-    config = Config(
-        config={
-            'sampler': {
-                'type': 'const',
-                'param': 1,
-            },
-            'local_agent': {
-                'reporting_host': 'jaeger',
-                # 'reporting_port': 'your-reporting-port',
-            },
-            'logging': True,
-        },
-        service_name=service_name,
-        validate=True,
-    )
-
-    # this call also sets opentracing.tracer
-    return config.initialize_tracer()
+from tracing import tags
 
 
 def format_request_headers(request_meta):
@@ -41,6 +11,7 @@ def format_request_headers(request_meta):
         if k.startswith('http-'):
             k = k[5:]
             headers[k] = v
+        # TODO feature
     return headers
 
 
@@ -49,11 +20,11 @@ def format_hex_trace_id(trace_id: int):
 
 
 def before_request_trace(tracer, request, view_func):
-    '''
+    """
     Helper function to avoid rewriting for middleware and decorator.
     Returns a new span from the request with logged attributes and
     correct operation name from the view_func.
-    '''
+    """
     # strip headers for trace info
     headers = format_request_headers(request.META)
 
@@ -68,14 +39,14 @@ def before_request_trace(tracer, request, view_func):
 
     span = scope.span
     span.set_tag(tags.COMPONENT, 'django')
-    span.set_tag(TRACE_ID, format_hex_trace_id(span.trace_id))
+    span.set_tag(tags.TRACE_ID, format_hex_trace_id(span.trace_id))
     span.set_tag(tags.SPAN_KIND, tags.SPAN_KIND_RPC_SERVER)
     span.set_tag(tags.HTTP_METHOD, request.method)
     span.set_tag(tags.HTTP_URL, request.get_full_path())
 
-    request_id = headers.get(REQUEST_ID)
+    request_id = headers.get(tags.REQUEST_ID)
     if request_id:
-        span.set_tag(REQUEST_ID, request_id)
+        span.set_tag(tags.REQUEST_ID, request_id)
 
     request.scope = scope
 

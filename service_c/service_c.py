@@ -2,11 +2,25 @@ import requests
 from flask import Flask, jsonify
 from opentracing_instrumentation.client_hooks.requests import install_patches
 
-from tracing import init_tracer, before_request_trace, after_request_trace
+from tracing import init_tracer
+from tracing.flask import before_request_trace, after_request_trace
 
 
 app = Flask(__name__)
-tracer = init_tracer('service_c')
+
+trace_config = {
+    'sampler': {
+        'type': 'const',
+        'param': 1,
+    },
+    'local_agent': {
+        'reporting_host': 'jaeger',
+        # 'reporting_port': 'your-reporting-port',
+    },
+    'logging': True,
+}
+
+tracer = init_tracer('service_c', trace_config)
 install_patches()
 
 
@@ -27,9 +41,15 @@ def end_trace_with_error(error):
         after_request_trace(error=error)
 
 
-@app.route('/c/')
-def index():
-    data = requests.get('http://service_d:5000/d/')
+@app.route('/error/')
+def error():
+    data = requests.get('http://service_d:5000/error/')
+    return jsonify(data)
+
+
+@app.route('/good/')
+def success():
+    data = requests.get('http://service_d:5000/good/')
     return jsonify(data)
 
 
