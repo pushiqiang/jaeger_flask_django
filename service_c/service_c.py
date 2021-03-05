@@ -1,10 +1,9 @@
 import requests
-from flask import Flask, jsonify
 from opentracing_instrumentation.client_hooks.requests import install_patches
 
+from flask import Flask, jsonify
 from tracing import init_tracer
-from tracing.flask import before_request_trace, after_request_trace
-
+from tracing.flask import after_request_trace, before_request_trace
 
 app = Flask(__name__)
 

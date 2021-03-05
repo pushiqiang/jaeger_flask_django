@@ -1,12 +1,12 @@
 import logging
+
 import requests
-from flask import Flask, jsonify
 from opentracing_instrumentation.client_hooks.requests import install_patches
 
+from flask import Flask, jsonify
 from tracing import init_tracer
 from tracing.flask import trace
 from tracing.logger_handler import ErrorTraceHandler
-
 
 logging.getLogger('').handlers = [logging.StreamHandler(), ErrorTraceHandler()]
 logger = logging.getLogger(__name__)
@@ -22,7 +22,6 @@ trace_config = {
     },
     'logging': True,
 }
-
 
 app = Flask(__name__)
 tracer = init_tracer('service', trace_config)

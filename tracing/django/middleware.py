@@ -1,7 +1,7 @@
 from django.conf import settings
 
 from tracing import init_tracer
-from tracing.django import before_request_trace, after_request_trace
+from tracing.django import after_request_trace, before_request_trace
 
 try:
     # Django >= 1.10
@@ -27,7 +27,8 @@ class OpenTracingMiddleware(MiddlewareMixin):
         assert settings.SERVICE_NAME
         assert settings.OPENTRACING_TRACER_CONFIG
 
-        self.tracer = init_tracer(settings.SERVICE_NAME, settings.OPENTRACING_TRACER_CONFIG)
+        self.tracer = init_tracer(settings.SERVICE_NAME,
+                                  settings.OPENTRACING_TRACER_CONFIG)
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         before_request_trace(self.tracer, request, view_func)

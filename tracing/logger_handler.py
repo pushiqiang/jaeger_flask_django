@@ -2,6 +2,7 @@
 import datetime
 import logging
 from logging import Handler
+
 import opentracing
 
 from tracing import tags
@@ -23,8 +24,9 @@ class ErrorTraceHandler(Handler):
         try:
             msg = self.format(record)
             operation_name = 'logger[{}]'.format(record.name)
-            with opentracing.tracer.start_span(operation_name,
-                                               child_of=opentracing.tracer.active_span) as logger_span:
+            with opentracing.tracer.start_span(
+                    operation_name,
+                    child_of=opentracing.tracer.active_span) as logger_span:
 
                 logger_span.set_tag(tags.SPAN_KIND, tags.SPAN_KIND_LOG)
                 logger_span.set_tag(tags.LOGGER, record.name)

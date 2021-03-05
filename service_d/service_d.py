@@ -1,10 +1,9 @@
 import logging
-from flask import Flask, jsonify
 
+from flask import Flask, jsonify
 from tracing import init_tracer
 from tracing.flask import trace
 from tracing.logger_handler import ErrorTraceHandler
-
 
 logging.getLogger('').handlers = [logging.StreamHandler(), ErrorTraceHandler()]
 logger = logging.getLogger(__name__)
@@ -22,7 +21,6 @@ trace_config = {
     },
     'logging': True,
 }
-
 
 tracer = init_tracer('service_d', trace_config)
 

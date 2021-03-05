@@ -1,7 +1,6 @@
 import opentracing
+
 from flask import g, request
-
-
 from tracing import tags
 
 
@@ -121,4 +120,5 @@ def trace(tracer):
 
         wrapper.__name__ = view_func.__name__
         return wrapper
+
     return decorator

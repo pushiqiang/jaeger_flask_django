@@ -1,5 +1,5 @@
-import six
 import opentracing
+import six
 
 from tracing import tags
 
