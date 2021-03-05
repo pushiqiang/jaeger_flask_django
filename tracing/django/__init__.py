@@ -38,7 +38,7 @@ def before_request_trace(tracer, request, view_func):
         scope = tracer.start_active_span(operation_name)
 
     span = scope.span
-    span.set_tag(tags.COMPONENT, 'django')
+    span.set_tag(tags.COMPONENT, 'Django')
     span.set_tag(tags.TRACE_ID, format_hex_trace_id(span.trace_id))
     span.set_tag(tags.SPAN_KIND, tags.SPAN_KIND_RPC_SERVER)
     span.set_tag(tags.HTTP_METHOD, request.method)
