@@ -4,7 +4,7 @@ import logging
 import opentracing
 from opentracing.ext import tags
 
-from logging import NullHandler
+from logging import Handler
 
 
 SPAN_KIND_LOGGER = 'logger'
@@ -16,7 +16,7 @@ ERROR_MESSAGE = 'error.message'
 logger = logging.getLogger('jaeger_tracing')
 
 
-class ErrorTraceHandler(NullHandler):
+class ErrorTraceHandler(Handler):
     """
     Custom StreamHandler implementation to forward python logger records to Jaeger / OpenTracing
     """
@@ -26,7 +26,7 @@ class ErrorTraceHandler(NullHandler):
 
         If stream is not specified, sys.stderr is used.
         """
-        super().__init__(self, level)
+        super().__init__(level)
 
     def emit(self, record):
         try:
