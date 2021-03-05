@@ -4,7 +4,7 @@ import logging
 import opentracing
 from opentracing.ext import tags
 
-from logging import StreamHandler
+from logging import NullHandler
 
 
 SPAN_KIND_LOGGER = 'logger'
@@ -16,46 +16,44 @@ ERROR_MESSAGE = 'error.message'
 logger = logging.getLogger('jaeger_tracing')
 
 
-class TraceErrorHandler(StreamHandler):
+class ErrorTraceHandler(NullHandler):
     """
     Custom StreamHandler implementation to forward python logger records to Jaeger / OpenTracing
     """
+    def __init__(self, level=logging.ERROR):
+        """
+        Initialize the handler.
+
+        If stream is not specified, sys.stderr is used.
+        """
+        super().__init__(self, level)
 
     def emit(self, record):
         try:
             msg = self.format(record)
-            stream = self.stream
-            # issue 35046: merged two stream.writes into one.
-            stream.write(msg + self.terminator)
-            self.flush()
-        except Exception:
+            operation_name = 'logger[{}]:{}:{}'.format(record.name, record.funcName, record.lineno)
+            with opentracing.tracer.start_span(operation_name,
+                                               child_of=opentracing.tracer.active_span) as logger_span:
+
+                logger_span.set_tag(tags.SPAN_KIND, LOGGER)
+                logger_span.set_tag(LOGGER, record.name)
+
+                logger_span.log_kv({
+                    'event': 'logger.error',
+                    'message': msg,
+                    'error.stack_info': record.stack_info,
+                    'error.asctime': getattr(record, 'asctime', datetime.datetime.now()),
+                    'error.created': record.created,
+                    'error.filename': record.filename,
+                    'error.funcName': record.funcName,
+                    'error.levelname': record.levelname,
+                    'error.lineno': record.lineno,
+                    'error.module': record.module,
+                    'error.msecs': record.msecs,
+                    'error.name': record.name,
+                    'error.pathname': record.pathname,
+                    'error.process': record.process,
+                    'error.thread': record.thread
+                })
+        except Exception as e:
             self.handleError(record)
-
-        if record.levelno == logging.ERROR:
-            try:
-                operation_name = 'logger[{}]:{}:{}'.format(record.name, record.funcName, record.lineno)
-                with opentracing.tracer.start_span(operation_name,
-                                                   child_of=opentracing.tracer.active_span) as logger_span:
-
-                    logger_span.set_tag(tags.SPAN_KIND, LOGGER)
-                    logger_span.set_tag(LOGGER, record.name)
-
-                    logger_span.log_kv({
-                        'event': 'logger.error',
-                        'error.message': msg,
-                        'error.exc_info': record.exc_info,
-                        'error.asctime': getattr(record, 'asctime', datetime.datetime.now()),
-                        'error.created': record.created,
-                        'error.filename': record.filename,
-                        'error.funcName': record.funcName,
-                        'error.levelname': record.levelname,
-                        'error.lineno': record.lineno,
-                        'error.module': record.module,
-                        'error.msecs': record.msecs,
-                        'error.name': record.name,
-                        'error.pathname': record.pathname,
-                        'error.process': record.process,
-                        'error.thread': record.thread
-                    })
-            except Exception:
-                pass

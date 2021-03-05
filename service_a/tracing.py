@@ -14,7 +14,10 @@ REQUEST_ID = 'request_id'
 
 
 def init_tracer(service_name):
-    logging.getLogger('').handlers = [TraceErrorHandler()]
+    # add the handler to the root logger
+    # 为root logger添加handler
+    # logging.getLogger('').handlers = [TraceErrorHandler()]
+    logging.getLogger('').addHandler(TraceErrorHandler())
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.ERROR)
 
     config = Config(

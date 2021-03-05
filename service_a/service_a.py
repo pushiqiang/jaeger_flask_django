@@ -21,7 +21,8 @@ def index():
     try:
         a = 2 / 0
     except Exception as e:
-        logger.error('logger error xxxxxxxxxx', exc_info=True)
+        logger.error('exception error', exc_info=True)
+    logger.critical('critical error', exc_info=True)
     # data = requests.get('http://service_c:5000/c/')
     data = requests.get('http://172.21.0.2:5000/b/')
     return jsonify(data)
