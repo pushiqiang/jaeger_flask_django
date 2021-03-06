@@ -1,0 +1,60 @@
+version: '2.2'
+
+services:
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.7
+    ports:
+      - 6831:6831
+      - 6832:6832
+      - 16686:16686
+
+  service:
+    build: ./
+    volumes:
+      - ./service:/opt/examples
+      - ../tracing:/opt/tracing
+    ports:
+      - 5000:5000
+
+    command: sleep 10000000000
+
+  service_a:
+    build: ./
+    volumes:
+      - ./service_a:/opt/examples
+      - ../tracing:/opt/tracing
+    expose:
+      - "5000"
+
+    command: sleep 10000000000
+
+  service_b:
+    build: ./
+    volumes:
+      - ./service_b:/opt/examples
+      - ../tracing:/opt/tracing
+    expose:
+      - "5000"
+
+    command: sleep 10000000000
+
+  service_c:
+    build: ./
+    volumes:
+      - ./service_c:/opt/examples
+      - ../tracing:/opt/tracing
+    expose:
+      - "5000"
+
+    command: sleep 10000000000
+
+  service_d:
+    build: ./
+    volumes:
+      - ./service_d:/opt/examples
+      - ../tracing:/opt/tracing
+    expose:
+      - "5000"
+
+    command: sleep 10000000000

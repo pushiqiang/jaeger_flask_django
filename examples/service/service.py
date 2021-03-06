@@ -38,7 +38,7 @@ def error():
 
     logger.critical('critical error', exc_info=True)
 
-    response = requests.get('http://172.21.0.3:5000/error/')
+    response = requests.get('http://service_a:5000/error/')
     return jsonify(response.json())
 
 
@@ -46,7 +46,7 @@ def error():
 @trace(tracer)
 def good():
     logger.info('service good')
-    response = requests.get('http://172.21.0.3:5000/good/')
+    response = requests.get('http://service_a:5000/good/')
     return jsonify(response.json())
 
 
