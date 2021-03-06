@@ -12,7 +12,7 @@ services:
   service:
     build: ./
     volumes:
-      - ./service:/opt/examples
+      - ./examples/service:/opt/examples
       - ./tracing:/opt/tracing
     ports:
       - 5000:5000
@@ -22,7 +22,7 @@ services:
   service_a:
     build: ./
     volumes:
-      - ./service_a:/opt/examples
+      - ./examples/service_a:/opt/examples
       - ./tracing:/opt/tracing
     expose:
       - "5000"
@@ -32,7 +32,7 @@ services:
   service_b:
     build: ./
     volumes:
-      - ./service_b:/opt/examples
+      - ./examples/service_b:/opt/examples
       - ./tracing:/opt/tracing
     expose:
       - "5000"
@@ -42,7 +42,7 @@ services:
   service_c:
     build: ./
     volumes:
-      - ./service_c:/opt/examples
+      - ./examples/service_c:/opt/examples
       - ./tracing:/opt/tracing
     expose:
       - "5000"
@@ -52,7 +52,7 @@ services:
   service_d:
     build: ./
     volumes:
-      - ./service_d:/opt/examples
+      - ./examples/service_d:/opt/examples
       - ./tracing:/opt/tracing
     expose:
       - "5000"

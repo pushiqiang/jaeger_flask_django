@@ -8,7 +8,7 @@ RUN apt-get update;\
     true
 
 COPY ./requirements.txt /opt/examples/
-# COPY ./tracing/ /opt/tracing/
+COPY ./tracing/ /opt/tracing/
 
 WORKDIR /opt/examples
 ENV PYTHONPATH "${PYTHONPATH}:/opt"
