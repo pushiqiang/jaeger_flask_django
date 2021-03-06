@@ -1,13 +1,11 @@
-# 
-https://www.jianshu.com/p/fbedfcdea606
-https://github.com/jaegertracing/jaeger
+# Use jaeger - a Distributed Tracing System in flask and django development
 
 # Usage
 
 ## in django
 
-### tacing all request by middleware
-#### settings.py add config
+### tracing all request by middleware
+#### settings.py
 ```
 MIDDLEWARE = [
     'tracing.django.middleware.OpenTracingMiddleware',
@@ -23,41 +21,17 @@ OPENTRACING_TRACER_CONFIG = {
     },
     'local_agent': {
         'reporting_host': 'jaeger',
-        # 'reporting_port': 'your-reporting-port',
+        'reporting_port': 'your-reporting-port',
     },
     'logging': True,
 }
 
 ```
 
-#### after server running:
-
+### tracing specific request by decorator
+#### 1: initialize a global tracer
 ```python
-import logging
-from opentracing_instrumentation.client_hooks.requests import install_patches
-
-from tracing.logger_handler import ErrorTraceHandler
-
-install_patches()
-
-logging.getLogger('').handlers = [logging.StreamHandler(), ErrorTraceHandler()]
-logger = logging.getLogger(__name__)
-```
-
-### tacing some request by decorator
-```python
-import logging
-
-import requests
-from django.http import JsonResponse
-from opentracing_instrumentation.client_hooks.requests import install_patches
-
 from tracing import init_tracer
-from tracing.django import trace
-from tracing.logger_handler import ErrorTraceHandler
-
-logging.getLogger('').handlers = [logging.StreamHandler(), ErrorTraceHandler()]
-logger = logging.getLogger(__name__)
 
 trace_config = {
     'sampler': {
@@ -72,28 +46,32 @@ trace_config = {
 }
 
 tracer = init_tracer('service_b', trace_config)
-install_patches()
+
+```
+
+#### 2: import tracer and decorator views
+
+```python
+
+from django.http import JsonResponse
+
+from tracing.django import trace
+
+# tracer: init_tracer('service_b', trace_config)
+from example import tracer
 
 
 @trace(tracer)
 def error(request):
-    try:
-        response = requests.get('http://service_c:5000/error/')
-    except Exception as e:
-        logger.error('call service_c fail')
-        raise e
-    return JsonResponse(response.json())
+    data = {'name': 'error'}
+    return JsonResponse(data)
 
 ```
 
-
 ## in flask
 
-### tacing all request by middleware
+### tracing all request by middleware(flask request hook)
 ```python
-import requests
-from opentracing_instrumentation.client_hooks.requests import install_patches
-
 from flask import Flask, jsonify
 from tracing import init_tracer
 from tracing.flask import after_request_trace, before_request_trace
@@ -107,13 +85,12 @@ trace_config = {
     },
     'local_agent': {
         'reporting_host': 'jaeger',
-        # 'reporting_port': 'your-reporting-port',
+        'reporting_port': 'your-reporting-port',
     },
     'logging': True,
 }
 
 tracer = init_tracer('service_c', trace_config)
-install_patches()
 
 
 @app.before_request
@@ -141,8 +118,8 @@ def exception_trace(e):
 
 @app.route('/error/')
 def error():
-    response = requests.get('http://service_d:5000/error/')
-    return jsonify(response.json())
+    data = {'name': 'error'}
+    return jsonify(data)
 
 if __name__ == '__main__':
     app.debug = True
@@ -150,21 +127,11 @@ if __name__ == '__main__':
 
 ```
 
-
-### tacing some request by decorator
+### tracing specific request by decorator
 ```python
-import logging
-
-import requests
-from opentracing_instrumentation.client_hooks.requests import install_patches
-
 from flask import Flask, jsonify
 from tracing import init_tracer
 from tracing.flask import trace
-from tracing.logger_handler import ErrorTraceHandler
-
-logging.getLogger('').handlers = [logging.StreamHandler(), ErrorTraceHandler()]
-logger = logging.getLogger(__name__)
 
 trace_config = {
     'sampler': {
@@ -180,33 +147,56 @@ trace_config = {
 
 app = Flask(__name__)
 tracer = init_tracer('service', trace_config)
-install_patches()
-
 
 @app.route('/error/')
 @trace(tracer)
 def error():
-    try:
-        a = 2 / 0
-    except Exception as e:
-        logger.error('exception error', exc_info=True)
-
-    logger.critical('critical error', exc_info=True)
-
-    response = requests.get('http://172.21.0.3:5000/error/')
-    return jsonify(response.json())
-
-
-@app.route('/good/')
-@trace(tracer)
-def good():
-    logger.info('service good')
-    response = requests.get('http://172.21.0.3:5000/good/')
-    return jsonify(response.json())
+    data = {'name': 'error'}
+    return jsonify(data)
 
 
 if __name__ == '__main__':
     app.debug = True
     app.run(host='0.0.0.0', port=5000)
+
+```
+
+## auto patch http client
+```python
+import requests
+# only patch requests, or you can:
+# from opentracing_instrumentation.client_hooks import install_all_patches
+# install_all_patches()
+from opentracing_instrumentation.client_hooks.requests import install_patches
+
+install_patches()
+# http request will bring the `trace_id` in headers
+response = requests.get('http://service_d:5000/good/')
+```
+
+## auto record error level logs
+```python
+import logging
+from flask import jsonify
+
+from tracing.flask import trace
+from tracing.logger_handler import ErrorTraceHandler
+
+from example import app, tracer
+
+logging.getLogger('').handlers.add(ErrorTraceHandler())
+logger = logging.getLogger(__name__)
+
+@app.route('/error/')
+@trace(tracer)
+def error():
+    try:
+        data = 2 / 0
+    except Exception as e:
+        logger.error('exception error', exc_info=True)
+
+    logger.critical('critical error', exc_info=True)
+
+    return jsonify(data)
 
 ```
