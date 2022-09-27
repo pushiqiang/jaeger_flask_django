@@ -6,9 +6,9 @@ from opentracing_instrumentation.client_hooks.requests import install_patches
 
 from tracing import init_tracer
 from tracing.django import trace
-from tracing.logger_handler import ErrorTraceHandler
+from tracing.logger_handler import LogTraceHandler
 
-logging.getLogger('').handlers = [logging.StreamHandler(), ErrorTraceHandler()]
+logging.getLogger('').handlers = [logging.StreamHandler(), LogTraceHandler()]
 logger = logging.getLogger(__name__)
 
 trace_config = {
@@ -23,11 +23,11 @@ trace_config = {
     'logging': True,
 }
 
-tracer = init_tracer('service_b', trace_config)
+init_tracer('service_b', trace_config)
 install_patches()
 
 
-@trace(tracer)
+@trace()
 def error(request):
     try:
         response = requests.get('http://service_c:5000/error/')
@@ -37,7 +37,7 @@ def error(request):
     return JsonResponse(response.json())
 
 
-@trace(tracer)
+@trace()
 def good(request):
     response = requests.get('http://service_c:5000/good/')
     logger.error('call service_c success')

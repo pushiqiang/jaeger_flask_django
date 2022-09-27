@@ -19,7 +19,7 @@ def format_hex_trace_id(trace_id: int):
     return '{:x}'.format(trace_id)
 
 
-def before_request_trace(tracer, request, view_func):
+def before_request_trace(request, view_func):
     """
     Helper function to avoid rewriting for middleware and decorator.
     Returns a new span from the request with logged attributes and
@@ -31,11 +31,11 @@ def before_request_trace(tracer, request, view_func):
     # start new span from trace info
     operation_name = view_func.__name__
     try:
-        span_ctx = tracer.extract(opentracing.Format.HTTP_HEADERS, headers)
-        scope = tracer.start_active_span(operation_name, child_of=span_ctx)
+        span_ctx = opentracing.tracer.extract(opentracing.Format.HTTP_HEADERS, headers)
+        scope = opentracing.tracer.start_active_span(operation_name, child_of=span_ctx)
     except (opentracing.InvalidCarrierException,
             opentracing.SpanContextCorruptedException):
-        scope = tracer.start_active_span(operation_name)
+        scope = opentracing.tracer.start_active_span(operation_name)
 
     span = scope.span
     span.set_tag(tags.COMPONENT, 'Django')
@@ -64,9 +64,7 @@ def after_request_trace(request, response=None, error=None):
     if error is not None:
         scope.span.set_tag(tags.ERROR, True)
         scope.span.log_kv({
-            'event': tags.ERROR,
-            'error.kind': type(error),
-            'error.object': error,
+            'error': error,
             'error.stack': error.__traceback__,
             'request.headers': format_request_headers(request.META),
             'request.args': request.GET,
@@ -76,13 +74,13 @@ def after_request_trace(request, response=None, error=None):
     scope.close()
 
 
-def trace(tracer):
+def trace():
     """
     Function decorator that traces functions such as Views
     """
     def decorator(view_func):
         def wrapper(request, *args, **kwargs):
-            before_request_trace(tracer, request, view_func)
+            before_request_trace(request, view_func)
             try:
                 response = view_func(request, *args, **kwargs)
             except Exception as e:

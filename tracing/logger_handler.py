@@ -1,14 +1,12 @@
 # coding: utf-8
 import datetime
 import logging
-from logging import Handler
-
 import opentracing
 
 from tracing import tags
 
 
-class ErrorTraceHandler(Handler):
+class LogTraceHandler(logging.Handler):
     """
     Custom StreamHandler implementation to forward python logger records to Jaeger / OpenTracing
     """
@@ -29,24 +27,16 @@ class ErrorTraceHandler(Handler):
                 return
             with opentracing.tracer.start_span(operation_name, child_of=parent_span) as logger_span:
                 logger_span.set_tag(tags.SPAN_KIND, tags.SPAN_KIND_LOG)
-                logger_span.set_tag(tags.LOGGER, record.name)
-
+                # ref: https://docs.python.org/zh-cn/3/library/logging.html#logrecord-attributes
                 logger_span.log_kv({
-                    'event': tags.LOG_ERROR,
-                    'message': msg,
-                    'log.stack_info': record.stack_info,
-                    'log.asctime': getattr(record, 'asctime', datetime.datetime.now()),
-                    'log.created': record.created,
-                    'log.filename': record.filename,
-                    'log.funcName': record.funcName,
-                    'log.levelname': record.levelname,
-                    'log.lineno': record.lineno,
-                    'log.module': record.module,
-                    'log.msecs': record.msecs,
-                    'log.name': record.name,
+                    'log.content': msg,
+                    'log.level': record.levelname,
+                    'log.time': getattr(record, 'asctime', datetime.datetime.now()),
                     'log.pathname': record.pathname,
+                    'log.lineno': record.lineno,
                     'log.process': record.process,
-                    'log.thread': record.thread
+                    'log.thread': record.thread,
+                    'log.stack_info': record.stack_info,
                 })
         except Exception as e:
             self.handleError(record)

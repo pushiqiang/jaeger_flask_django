@@ -3,9 +3,9 @@ import logging
 from flask import Flask, jsonify
 from tracing import init_tracer
 from tracing.flask import trace
-from tracing.logger_handler import ErrorTraceHandler
+from tracing.logger_handler import LogTraceHandler
 
-logging.getLogger('').handlers = [logging.StreamHandler(), ErrorTraceHandler()]
+logging.getLogger('').handlers = [logging.StreamHandler(), LogTraceHandler()]
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
@@ -22,17 +22,17 @@ trace_config = {
     'logging': True,
 }
 
-tracer = init_tracer('service_d', trace_config)
+init_tracer('service_d', trace_config)
 
 
 @app.route('/error/')
-@trace(tracer)
+@trace()
 def error():
     raise Exception('service d raise a exception.')
 
 
 @app.route('/good/')
-@trace(tracer)
+@trace()
 def good():
     data = {'service_d': 'good'}
     logger.error('log service_d some error')

@@ -47,11 +47,11 @@ trace_config = {
     'logging': True,
 }
 
-tracer = init_tracer('service_b', trace_config)
+init_tracer('service_b', trace_config)
 
 ```
 
-#### 2: import tracer and decorator views
+#### 2: decorator views
 
 ```python
 
@@ -59,11 +59,8 @@ from django.http import JsonResponse
 
 from tracing.django import trace
 
-# tracer: init_tracer('service_b', trace_config)
-from example import tracer
 
-
-@trace(tracer)
+@trace()
 def error(request):
     data = {'name': 'error'}
     return JsonResponse(data)
@@ -92,12 +89,12 @@ trace_config = {
     'logging': True,
 }
 
-tracer = init_tracer('service_c', trace_config)
+init_tracer('service_c', trace_config)
 
 
 @app.before_request
 def start_trace():
-    before_request_trace(tracer)
+    before_request_trace()
 
 
 @app.after_request
@@ -148,10 +145,10 @@ trace_config = {
 }
 
 app = Flask(__name__)
-tracer = init_tracer('service', trace_config)
+init_tracer('service', trace_config)
 
 @app.route('/error/')
-@trace(tracer)
+@trace()
 def error():
     data = {'name': 'error'}
     return jsonify(data)
@@ -182,15 +179,15 @@ import logging
 from flask import jsonify
 
 from tracing.flask import trace
-from tracing.logger_handler import ErrorTraceHandler
+from tracing.logger_handler import LogTraceHandler
 
-from example import app, tracer
+from example import app
 
-logging.getLogger('').handlers.add(ErrorTraceHandler())
+logging.getLogger('').handlers.add(LogTraceHandler())
 logger = logging.getLogger(__name__)
 
 @app.route('/error/')
-@trace(tracer)
+@trace()
 def error():
     try:
         data = 2 / 0

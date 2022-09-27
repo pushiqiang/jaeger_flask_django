@@ -16,22 +16,11 @@ class OpenTracingMiddleware(MiddlewareMixin):
          __init__() is only called once, no arguments, when the Web server
         responds to the first request
         """
-        self._init_tracer()
         self.get_response = get_response
-
-    def _init_tracer(self):
-        """
-        get global tracer callable function from Django settings.
-        :return:
-        """
-        assert settings.SERVICE_NAME
-        assert settings.OPENTRACING_TRACER_CONFIG
-
-        self.tracer = init_tracer(settings.SERVICE_NAME,
-                                  settings.OPENTRACING_TRACER_CONFIG)
+        init_tracer(settings.SERVICE_NAME, settings.OPENTRACING_TRACER_CONFIG)
 
     def process_view(self, request, view_func, view_args, view_kwargs):
-        before_request_trace(self.tracer, request, view_func)
+        before_request_trace(request, view_func)
 
     def process_exception(self, request, exception):
         after_request_trace(request, error=exception)

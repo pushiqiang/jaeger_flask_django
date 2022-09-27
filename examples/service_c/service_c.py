@@ -19,13 +19,13 @@ trace_config = {
     'logging': True,
 }
 
-tracer = init_tracer('service_c', trace_config)
+init_tracer('service_c', trace_config)
 install_patches()
 
 
 @app.before_request
 def start_trace():
-    before_request_trace(tracer)
+    before_request_trace()
 
 
 @app.after_request

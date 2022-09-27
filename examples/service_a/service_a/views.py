@@ -4,11 +4,11 @@ import requests
 from django.http import JsonResponse
 from opentracing_instrumentation.client_hooks.requests import install_patches
 
-from tracing.logger_handler import ErrorTraceHandler
+from tracing.logger_handler import LogTraceHandler
 
 install_patches()
 
-logging.getLogger('').handlers = [logging.StreamHandler(), ErrorTraceHandler()]
+logging.getLogger('').handlers = [logging.StreamHandler(), LogTraceHandler()]
 logger = logging.getLogger(__name__)
 
 

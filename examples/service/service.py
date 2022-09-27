@@ -6,9 +6,9 @@ from opentracing_instrumentation.client_hooks.requests import install_patches
 from flask import Flask, jsonify
 from tracing import init_tracer
 from tracing.flask import trace
-from tracing.logger_handler import ErrorTraceHandler
+from tracing.logger_handler import LogTraceHandler
 
-logging.getLogger('').handlers = [logging.StreamHandler(), ErrorTraceHandler()]
+logging.getLogger('').handlers = [logging.StreamHandler(), LogTraceHandler()]
 logger = logging.getLogger(__name__)
 
 trace_config = {
@@ -24,12 +24,12 @@ trace_config = {
 }
 
 app = Flask(__name__)
-tracer = init_tracer('service', trace_config)
+init_tracer('service', trace_config)
 install_patches()
 
 
 @app.route('/error/')
-@trace(tracer)
+@trace()
 def error():
     try:
         a = 2 / 0
@@ -43,7 +43,7 @@ def error():
 
 
 @app.route('/good/')
-@trace(tracer)
+@trace()
 def good():
     logger.info('service good')
     response = requests.get('http://service_a:5000/good/')
